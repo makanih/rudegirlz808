@@ -55,7 +55,10 @@ header {
   line-height: 1;
   letter-spacing: 0;
   margin: 0;
+  -webkit-text-stroke: 0.022em currentColor;
+  paint-order: stroke fill;
 }
+.logo { height: clamp(52px, 15vw, 84px); width: auto; display: block; }
 .tag {
   font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green-ink);
 }
@@ -77,6 +80,7 @@ header {
   mix-blend-mode: multiply; /* black box x page gradient = letters cut out, showing the real background */
   padding: 0 .12em; -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
+.intro p .t2 { display: inline-block; filter: url(#rough2); font-family: "Caveat Brush", "Caveat", cursive; font-weight: 400; font-size: 1.08em; }
 .intro p { margin: 0; color: var(--black); max-width: 46ch; font-family: "Caveat", "Comic Sans MS", cursive; font-weight: 500; font-size: clamp(22px, 6.2vw, 28px); line-height: 1.1; letter-spacing: 0.01em; }
 
 .grid {
@@ -173,6 +177,13 @@ header {
   margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--card-muted);
 }
+.mini-sizes { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.mini-sizes li {
+  min-width: 24px; padding: 3px 5px; text-align: center;
+  font-size: 12px; font-weight: 600; line-height: 1.3; font-variant-numeric: tabular-nums;
+  border: 1px solid var(--green); color: var(--green);
+}
+.mini-sizes li.gone { border-color: var(--card-line); border-style: dashed; color: var(--card-muted); text-decoration: line-through; }
 .sizes { display: flex; flex-wrap: wrap; gap: 8px; }
 .size {
   min-width: 58px; min-height: 58px; padding: 6px 12px;
@@ -255,16 +266,20 @@ footer b { color: var(--black); font-family: var(--font-display); font-weight: 9
     <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="11" result="n"/>
     <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/>
   </filter>
+  <filter id="rough2" x="-3%" y="-15%" width="106%" height="130%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
 </svg>
 <div class="wrap">
   <header>
     <p class="mark">RudeGirlz808</p>
-    <span class="tag">Luxury</span>
+    <img class="logo" src="logo.png" alt="RudeGirlz808 logo">
   </header>
 
   <section class="intro">
     <h1 aria-label="Cute. Rude. Luxe."><span class="t" aria-hidden="true">Cute. Rude.</span> <em><span class="t" aria-hidden="true">Luxe.</span></em></h1>
-    <p>Baddie taste. Baddie budget.</p>
+    <p><span class="t2">Baddie taste. Baddie budget.</span></p>
   </section>
 
   <main class="shop">
@@ -322,6 +337,16 @@ function stockBadge(p) {
   if (n <= 2) return '<span class="stock">Only ' + n + ' left</span>';
   return '<span class="stock full">' + n + ' in stock</span>';
 }
+function miniSizes(p) {
+  if (p.soon) return '';
+  var all = p.allSizes || SIZES;
+  var avail = p.sizes || all;
+  if (!all.length) return '';
+  return '<ul class="mini-sizes" aria-label="Sizes">' + all.map(function (s) {
+    var has = avail.indexOf(s) !== -1;
+    return '<li' + (has ? '' : ' class="gone" aria-label="' + esc(s) + ' sold out"') + '>' + esc(s) + '</li>';
+  }).join('') + '</ul>';
+}
 function priceHtml(p) { return p.price !== null ? '<span class="price">' + (p.was ? '<s class="was">$' + p.was + '</s> ' : '') + '$' + p.price + '</span>' : '<span class="price"></span>'; }
 function photoHtml(p, big) { return '<img src="' + esc(big && p.full ? p.full : p.img) + '" alt="' + esc(p.name) + '">'; }
 
@@ -336,7 +361,7 @@ function renderGrid(cat) {
     return head + '<article class="card' + (p.tall ? ' tall' : '') + (p.shape ? ' ' + p.shape : '') + '">' +
       '<div class="photo">' + photoHtml(p) + '</div>' +
       '<div class="info"><h3 class="name">' + esc(p.name) + '</h3>' +
-      '<div class="row">' + priceHtml(p) + stockBadge(p) + '</div></div>' +
+      '<div class="row">' + priceHtml(p) + stockBadge(p) + '</div>' + miniSizes(p) + '</div>' +
       '<button type="button" class="hit" data-i="' + i + '" aria-label="View ' + esc(p.name) + '"></button>' +
       '</article>';
   }).join("");
