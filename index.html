@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>RudeGirlz808</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -198,6 +203,25 @@ a.buy:hover { filter: brightness(1.08); }
   letter-spacing: 0.1em; text-transform: uppercase;
 }
 .group:first-child { margin-top: 0; }
+.shop { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start; }
+.cats { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.cats::-webkit-scrollbar { display: none; }
+.cat {
+  flex: 0 0 auto; cursor: pointer;
+  font-family: var(--font-display); font-weight: 900; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 12px 18px; background: transparent; color: var(--black); border: 2px solid var(--black);
+}
+.cat:hover { background: rgba(10, 11, 8, 0.08); }
+.cat.on { background: var(--black); color: var(--green); }
+.cat:focus-visible { outline: 3px solid var(--black); outline-offset: 2px; }
+.cat small { font-family: var(--font-body); font-weight: 600; font-size: 10px; letter-spacing: 0.06em; opacity: .7; margin-left: 6px; }
+.empty-cat { grid-column: 1 / -1; padding: 40px 16px; text-align: center; border: 2px dashed var(--black); font-family: var(--font-display); font-weight: 700; font-size: 16px; }
+.empty-cat span { display: block; margin-top: 6px; font-family: var(--font-body); font-weight: 500; font-size: 14px; color: var(--green-ink); }
+@media (min-width: 720px) {
+  .shop { grid-template-columns: 170px minmax(0, 1fr); gap: 28px; }
+  .cats { flex-direction: column; overflow: visible; position: sticky; top: 20px; }
+  .cat { text-align: left; }
+}
 .desc { margin: 0; font-size: 14px; line-height: 1.5; color: var(--card-muted); }
 .note { margin: 0; font-size: 14px; color: var(--card-muted); }
 footer {
@@ -211,6 +235,9 @@ footer {
 footer b { color: var(--black); font-family: var(--font-display); font-weight: 900; }
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover, .card:focus-within { transform: none; } }
 </style>
+</head>
+<body>
+
 
 <div class="wrap">
   <header>
@@ -223,7 +250,13 @@ footer b { color: var(--black); font-family: var(--font-display); font-weight: 9
     <p>Luxury finds for way less.</p>
   </section>
 
-  <main>
+  <main class="shop">
+    <nav class="cats" id="cats" aria-label="Shop by category">
+      <button type="button" class="cat on" data-cat="all" aria-pressed="true">All</button>
+      <button type="button" class="cat" data-cat="Sandals" aria-pressed="false">Sandals</button>
+      <button type="button" class="cat" data-cat="Matching sets" aria-pressed="false">Sets</button>
+      <button type="button" class="cat" data-cat="Bags" aria-pressed="false">Bags</button>
+    </nav>
     <div class="grid" id="grid"></div>
   </main>
 
@@ -273,17 +306,36 @@ function stockBadge(p) {
 function priceHtml(p) { return p.price !== null ? '<span class="price">$' + p.price + '</span>' : '<span class="price"></span>'; }
 function photoHtml(p, big) { return '<img src="' + esc(big && p.full ? p.full : p.img) + '" alt="' + esc(p.name) + '">'; }
 
-var lastCat = null;
-document.getElementById("grid").innerHTML = PRODUCTS.map(function (p, i) {
-  var head = '';
-  if (p.cat && p.cat !== lastCat) { head = '<h2 class="group">' + esc(p.cat) + '</h2>'; lastCat = p.cat; }
-  return head + '<article class="card' + (p.tall ? ' tall' : '') + '">' +
-    '<div class="photo">' + photoHtml(p) + '</div>' +
-    '<div class="info"><h3 class="name">' + esc(p.name) + '</h3>' +
-    '<div class="row">' + priceHtml(p) + stockBadge(p) + '</div></div>' +
-    '<button type="button" class="hit" data-i="' + i + '" aria-label="View ' + esc(p.name) + '"></button>' +
-    '</article>';
-}).join("");
+var CAT_LABEL = { "Matching sets": "Sets" };
+function renderGrid(cat) {
+  var lastCat = null, count = 0;
+  var html = PRODUCTS.map(function (p, i) {
+    if (cat !== "all" && p.cat !== cat) return "";
+    count++;
+    var head = "";
+    if (cat === "all" && p.cat && p.cat !== lastCat) { head = '<h2 class="group">' + esc(p.cat) + '</h2>'; lastCat = p.cat; }
+    return head + '<article class="card' + (p.tall ? ' tall' : '') + '">' +
+      '<div class="photo">' + photoHtml(p) + '</div>' +
+      '<div class="info"><h3 class="name">' + esc(p.name) + '</h3>' +
+      '<div class="row">' + priceHtml(p) + stockBadge(p) + '</div></div>' +
+      '<button type="button" class="hit" data-i="' + i + '" aria-label="View ' + esc(p.name) + '"></button>' +
+      '</article>';
+  }).join("");
+  if (!count) html = '<div class="empty-cat">' + esc(CAT_LABEL[cat] || cat) + ' coming soon<span>Follow @rudegirlz808 so you don\'t miss the drop.</span></div>';
+  document.getElementById("grid").innerHTML = html;
+}
+renderGrid("all");
+
+document.getElementById("cats").addEventListener("click", function (e) {
+  var b = e.target.closest(".cat");
+  if (!b) return;
+  document.querySelectorAll("#cats .cat").forEach(function (el) {
+    var on = el === b;
+    el.classList.toggle("on", on);
+    el.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+  renderGrid(b.getAttribute("data-cat"));
+});
 
 var wrap = document.getElementById("sheetWrap");
 var sheet = document.getElementById("sheet");
@@ -355,8 +407,6 @@ document.addEventListener("keydown", function (e) {
   if (e.key === "Escape" && !wrap.hidden) closeSheet();
 });
 </script>
-
-
 
 </body>
 </html>
