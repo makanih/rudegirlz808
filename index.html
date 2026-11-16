@@ -15,6 +15,7 @@
 /* Layout: neon green storefront, black product cards. Wordmark header, one-line intro, 5 equal product slots (2 columns on phone, 3 on desktop). */
 :root {
   --green: #aaee33;
+  --teal: #2fe0c4;
   --black: #0a0b08;
   --green-ink: #1c2410;
   --card-ink: #f2f6e8;
@@ -198,16 +199,17 @@ header {
 .size.gone { color: var(--card-muted); border-style: dashed; cursor: not-allowed; }
 .size.gone b { text-decoration: line-through; }
 .size.on { background: var(--green); border-color: var(--green); color: var(--black); }
-.size.pre { color: #e3d2ff; border: 1px dashed #b58cff; cursor: pointer; }
-.size.pre small { color: #b58cff; }
+.size.pre { color: #bff7ee; border: 1px dashed var(--teal); cursor: pointer; }
+.size.pre small { color: var(--teal); }
 .size.pre:hover { border-style: solid; }
-.size.pre.on { background: #b58cff; border-color: #b58cff; border-style: solid; color: var(--black); }
+.size.pre.on { background: var(--teal); border-color: var(--teal); border-style: solid; color: var(--black); }
 .size.pre.on small { color: var(--black); }
-.stock.pre { border-color: #b58cff; color: #d9c4ff; }
-.buy.pre { background: #b58cff; }
-.pre-btn { display: block; text-align: center; padding: 10px 8px; background: #b58cff; color: var(--black); font-family: var(--font-display); font-weight: 900; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
-.how { margin-top: 12px; padding: 12px 14px; border: 1px solid #b58cff; display: grid; gap: 8px; }
-.how-title { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #d9c4ff; }
+.stock.pre { border-color: var(--teal); color: #9ff0e2; }
+.buy.pre { background: var(--teal); }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.pre-btn { display: inline-block; padding: 4px 8px; background: var(--teal); color: var(--black); font-weight: 700; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+.how { margin-top: 12px; padding: 12px 14px; border: 1px solid var(--teal); display: grid; gap: 8px; }
+.how-title { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #9ff0e2; }
 .how ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; line-height: 1.45; color: var(--card-ink); }
 .how-note { margin: 0; font-size: 13px; color: var(--card-muted); }
 .buy {
@@ -375,8 +377,8 @@ function renderGrid(cat) {
     return head + '<article class="card' + (p.tall ? ' tall' : '') + (p.shape ? ' ' + p.shape : '') + '">' +
       '<div class="photo">' + photoHtml(p) + '</div>' +
       '<div class="info"><h3 class="name">' + esc(p.name) + '</h3>' +
-      '<div class="row">' + priceHtml(p) + stockBadge(p) + '</div>' + miniSizes(p) +
-      (p.preorder ? '<span class="pre-btn">Preorder</span>' : '') + '</div>' +
+      '<div class="row">' + priceHtml(p) + '<span class="badges">' + stockBadge(p) +
+      (p.preorder ? '<span class="pre-btn">Preorder</span>' : '') + '</span></div>' + miniSizes(p) + '</div>' +
       '<button type="button" class="hit" data-i="' + i + '" aria-label="View ' + esc(p.name) + '"></button>' +
       '</article>';
   }).join("");
