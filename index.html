@@ -537,7 +537,7 @@ document.addEventListener("keydown", function (e) {
 /* Live stock: the site reads the "Stock" tab of the Rude Girlz 808 Google Sheet.
    Any size with Qty above 0 shows as available; everything else shows sold out.
    If the sheet can't be reached, the PRODUCTS list above is used as a backup. */
-var STOCK_CSV_URL = ""; /* paste the published-to-web CSV link for the Stock tab here */
+var STOCK_CSV_URL = "/api/stock"; /* netlify/functions/stock.mjs reads the Stock tab of the Rude Girlz 808 sheet */
 function parseCsv(text) {
   var rows = [], row = [], f = "", q = false;
   for (var i = 0; i < text.length; i++) {
@@ -571,6 +571,7 @@ function applySheetStock(text) {
     if (!avail) return;
     var all = p.allSizes || SIZES;
     p.sizes = all.filter(function (s) { return avail.indexOf(String(s).toLowerCase()) !== -1; });
+    if (p.sizes.length && p.stock === 0) p.stock = null;
   });
   var on = document.querySelector("#cats .cat.on");
   renderGrid(on ? on.getAttribute("data-cat") : "all");
