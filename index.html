@@ -648,9 +648,12 @@ function checkout(btn) {
     .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
     .then(function (res) {
       if (res.ok && res.d.url) { window.location.href = res.d.url; return; }
+      if (res.d && res.d.error && /sold out/i.test(res.d.error)) { var so = new Error(res.d.error); so.soldOut = true; throw so; }
       throw new Error(res.d && res.d.error);
     })
-    .catch(function () {
+    .catch(function (err) {
+      /* Sold out since they added it: tell them, don't send them to a payment link */
+      if (err && err.soldOut) { openBag(err.message); return; }
       /* Backup: a single item can still use its own payment link */
       if (bag.length === 1) {
         var b = bag[0], p = findProduct(b.id);

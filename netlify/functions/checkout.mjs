@@ -28,6 +28,41 @@ const CATALOG = {
 const SHIPPING_RATE = "shr_1Ubar3BKeJpHexfIpVEY6kt0";
 const SITE = "https://rudegirlz808.com";
 
+// Live stock from the sheet's Stock tab (same source as /api/stock)
+const STOCK_CSV = "https://docs.google.com/spreadsheets/d/13vzmyvcsTSKhxAZFBd73HVm-Uyq_aC7XPfFkjJ_fD7I/export?format=csv&gid=777";
+const norm = (s) => String(s || "").toLowerCase().replace(/&/g, " ").replace(/\band\b/g, " ").replace(/[^a-z0-9]/g, "");
+const sizeKey = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9.]/g, "");
+
+function parseCsv(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) { if (ch === '"' && text[i + 1] === '"') { cell += '"'; i++; } else if (ch === '"') q = false; else cell += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === ",") { row.push(cell); cell = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += ch;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+
+// Returns a lookup of "name|size" -> qty, or null if the sheet can't be read
+async function loadStock() {
+  try {
+    const r = await fetch(STOCK_CSV, { redirect: "follow" });
+    const text = await r.text();
+    if (!r.ok || !/^\s*"?item"?\s*,/i.test(text)) return null;
+    const map = {};
+    for (const [item, , , size, qty] of parseCsv(text).slice(1)) {
+      if (!item) continue;
+      const k = `${norm(item)}|${sizeKey(size)}`;
+      map[k] = (map[k] || 0) + (Number(qty) || 0);
+    }
+    return map;
+  } catch { return null; }
+}
+
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
@@ -44,11 +79,20 @@ export default async (req) => {
 
   const form = new URLSearchParams();
   const summary = [];
+  const stock = await loadStock(); // if the sheet can't be read, don't block the sale
+  const wanted = {};
   let n = 0;
   for (const it of items) {
     const p = CATALOG[it && it.id];
     const size = String((it && it.size) || "").replace(/[^A-Za-z0-9 .\/-]/g, "").slice(0, 12);
     if (!p || !size) return json({ error: "Something in your bag isn't available anymore" }, 400);
+    if (stock) {
+      const k = `${norm(p.name)}|${sizeKey(size)}`;
+      wanted[k] = (wanted[k] || 0) + 1;
+      if ((stock[k] || 0) < wanted[k]) {
+        return json({ error: `Sorry, ${p.name} size ${size} just sold out. Please remove it from your bag.` }, 409);
+      }
+    }
     const label = size.toLowerCase() === "one size" ? p.name : `${p.name} — Size ${size}`;
     form.append(`line_items[${n}][price_data][currency]`, "usd");
     form.append(`line_items[${n}][price_data][unit_amount]`, String(p.cents));
