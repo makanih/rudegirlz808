@@ -9,19 +9,19 @@
 // When you change a price on the site, change it here too (amount is in cents: $80 = 8000).
 
 const CATALOG = {
-  "pink-miller-sandal":             { name: "Pink Miller Sandal",            cents: 7200 },
-  "black-rhinestone-miller-sandal": { name: "Black Rhinestone Miller Sandal", cents: 7200 },
-  "black-patent-miller-sandal":     { name: "Black Patent Miller Sandal",    cents: 7200 },
-  "black-rhinestone-slide-sandal":  { name: "Black Rhinestone Slide Sandal", cents: 7200 },
-  "brown-ines-slide-sandal":        { name: "Brown Ines Slide Sandal",       cents: 7200 },
-  "leopard-set":                    { name: "Leopard Set",                   cents: 7600 },
-  "baby-pink-biker-set":            { name: "Baby Pink Biker Set",           cents: 7600 },
-  "peach-set":                      { name: "Peach Set",                     cents: 7600 },
-  "black-dot-set":                  { name: "Black Dot Set",                 cents: 7600 },
-  "rose-set":                       { name: "Rose Set",                      cents: 7600 },
-  "black-gold-biker-set":           { name: "Black & Gold Biker Set",        cents: 7600 },
-  "olive-gold-set":                 { name: "Olive & Gold Set",              cents: 7600 },
-  "coach-signature-tote":           { name: "Coach Signature Tote",          cents: 6000 },
+  "pink-miller-sandal":             { name: "Pink Miller Sandal",            cents: 8100 },
+  "black-rhinestone-miller-sandal": { name: "Black Rhinestone Miller Sandal", cents: 9000 },
+  "black-patent-miller-sandal":     { name: "Black Patent Miller Sandal",    cents: 9000 },
+  "black-rhinestone-slide-sandal":  { name: "Black Rhinestone Slide Sandal", cents: 9000 },
+  "brown-ines-slide-sandal":        { name: "Brown Ines Slide Sandal",       cents: 9000 },
+  "leopard-set":                    { name: "Leopard Set",                   cents: 8000 },
+  "baby-pink-biker-set":            { name: "Baby Pink Biker Set",           cents: 8000 },
+  "peach-set":                      { name: "Peach Set",                     cents: 8000 },
+  "black-dot-set":                  { name: "Black Dot Set",                 cents: 8000 },
+  "rose-set":                       { name: "Rose Set",                      cents: 8000 },
+  "black-gold-biker-set":           { name: "Black & Gold Biker Set",        cents: 8000 },
+  "olive-gold-set":                 { name: "Olive & Gold Set",              cents: 8000 },
+  "coach-signature-tote":           { name: "Coach Signature Tote",          cents: 7500 },
 };
 
 // The same $10.99 flat shipping rate your payment links use — charged once per order.
